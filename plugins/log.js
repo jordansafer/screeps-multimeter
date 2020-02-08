@@ -1,33 +1,19 @@
 const fs = require("fs");
-const logFile = fs.createWriteStream("screeps.log", { flags: "a" });
-const errorLogFile = fs.createWriteStream("screeps.errors.log", { flags: "a" });
 
 module.exports = function(multimeter) {
-  let enabled = false;
+  let log = multimeter.config.logFilename;
+  if (!log) return;
+  let errorLog = log || multimeter.config.errorLogFilename;
 
-  function toggleLogging() {
-    if (!enabled) {
-      enabled = true;
-      multimeter.log("Enabled logging");
-    } else {
-      enabled = false;
-      multimeter.log("Disabled loggin");
-    }
-  }
+  const logFile = fs.createWriteStream(log, { flags: "a" });
+  const errorLogFile = fs.createWriteStream(errorLog, { flags: "a" });
 
   multimeter.console.on("addLines", function(event) {
-    if (!enabled) return;
     const msg = new Date().toISOString() + ": " + event.line + "\n";
     if (event.type === "log") {
       logFile.write(msg);
     } else if (event.type === "error") {
       errorLogFile.write(msg);
     }
-  });
-
-  multimeter.addCommand("log", {
-    description: "Log all console entries to a log file",
-    helpText: "Enable/Disable logging to txt file",
-    handler: toggleLogging,
   });
 };
