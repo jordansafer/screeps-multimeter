@@ -43,7 +43,7 @@ module.exports = class Console extends blessed.element {
     this.inputView.on("line", l => this.emit("line", l));
     
     if (opts.logFile) {
-      this.logStream = fs.createWriteStream("append.txt", {flags:'a'});
+      this.logStream = fs.createWriteStream(opts.logFile, {flags:'a'});
     }
   }
 
@@ -64,7 +64,7 @@ module.exports = class Console extends blessed.element {
     this.emit("addLines", event);
     line = event.line || line;
     if (this.logStream) {
-      this.logStream.write(line);
+      this.logStream.write(line + "\n");
     }
     line = line.split("\n").join("\n    ");
     if (event.skip) {
